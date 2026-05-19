@@ -1,28 +1,20 @@
-import { useState } from 'react';
 import Login from './components/auth/Login.jsx';
 import StudentDashboard from './components/student/StudentDashboard.jsx';
 import TeacherDashboard from './components/teacher/TeacherDashboard.jsx';
+import useMockSession from './hooks/useMockSession.js';
 
 function App() {
-  const [session, setSession] = useState(null);
-
-  const handleLogin = (role) => {
-    setSession({ role, authenticatedAt: new Date().toISOString() });
-  };
-
-  const handleLogout = () => {
-    setSession(null);
-  };
+  const { session, login, logout } = useMockSession();
 
   if (!session) {
-    return <Login onLogin={handleLogin} />;
+    return <Login onLogin={login} />;
   }
 
   if (session.role === 'student') {
-    return <StudentDashboard onLogout={handleLogout} />;
+    return <StudentDashboard session={session} onLogout={logout} />;
   }
 
-  return <TeacherDashboard onLogout={handleLogout} />;
+  return <TeacherDashboard session={session} onLogout={logout} />;
 }
 
 export default App;

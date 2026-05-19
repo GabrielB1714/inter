@@ -20,12 +20,15 @@ function Login({ onLogin }) {
   const [selectedRole, setSelectedRole] = useState('student');
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [validationMessage, setValidationMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const roleConfig = useMemo(() => roles[selectedRole], [selectedRole]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const result = authenticateUser(selectedRole, credentials.username, credentials.password);
+    setLoading(true);
+    const result = await authenticateUser(selectedRole, credentials.username, credentials.password);
+    setLoading(false);
 
     if (!result.ok) {
       setValidationMessage(result.message);
@@ -40,7 +43,7 @@ function Login({ onLogin }) {
     <section className="login-panel" aria-labelledby="login-title"><div className="panel-heading"><span className="eyebrow">Acceso institucional</span><h2 id="login-title">Selecciona tu perfil</h2></div>
     <div className="role-selector" role="tablist" aria-label="Tipo de usuario">{Object.entries(roles).map(([roleKey, role]) => (<button className={selectedRole === roleKey ? 'role-card active' : 'role-card'} key={roleKey} type="button" onClick={() => setSelectedRole(roleKey)} aria-pressed={selectedRole === roleKey}><strong>{role.title}</strong><small>{role.description}</small></button>))}</div>
     <form className="login-form" onSubmit={handleSubmit}><label>{roleConfig.userLabel}<input type="text" value={credentials.username} onChange={(event) => setCredentials({ ...credentials, username: event.target.value })} placeholder={roleConfig.userPlaceholder} autoComplete="username" /></label>
-    <label>Contraseña<input type="password" value={credentials.password} onChange={(event) => setCredentials({ ...credentials, password: event.target.value })} placeholder="••••••••" autoComplete="current-password" /></label>{validationMessage && <p className="form-alert">{validationMessage}</p>}<button className="primary-button" type="submit">Entrar como {roleConfig.title}</button></form></section></main>
+    <label>Contraseña<input type="password" value={credentials.password} onChange={(event) => setCredentials({ ...credentials, password: event.target.value })} placeholder="••••••••" autoComplete="current-password" /></label>{validationMessage && <p className="form-alert">{validationMessage}</p>}<button className="primary-button" type="submit" disabled={loading}>{loading ? 'Validando...' : `Entrar como ${roleConfig.title}`}</button></form></section></main>
   );
 }
 
